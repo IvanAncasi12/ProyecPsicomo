@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { apiClient } from '@/lib/axios'
+import styles from './Header.module.css'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  
-  const [logoUrl, setLogoUrl] = useState('https://ui-avatars.com/api/?name=UPEA&background=DC0E10&color=fff&size=128')
-  const [nombreInstitucion, setNombreInstitucion] = useState('Carrera de Derecho')
+  const [logoUrl, setLogoUrl] = useState('')
+  const [nombreInstitucion, setNombreInstitucion] = useState('Carrera')
   const [colores, setColores] = useState({ primario: '#DC0E10', secundario: '#E9C202' })
 
   useEffect(() => {
@@ -17,7 +17,6 @@ export default function Header() {
       try {
         const id = process.env.NEXT_PUBLIC_INSTITUCION_ID || '22'
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://apiadministrador.upea.bo'
-        
         const res = await apiClient.get(`/institucionesPrincipal/${id}`)
         const data = res.data?.Descripcion
 
@@ -40,152 +39,282 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--primary', colores.primario)
-    document.documentElement.style.setProperty('--accent', colores.secundario)
+    const root = document.documentElement
+    root.style.setProperty('--header-bg', colores.primario)
+    root.style.setProperty('--header-accent', colores.secundario)
   }, [colores])
 
   useEffect(() => {
-    const handleClickOutside = () => setActiveDropdown(null)
-    if (activeDropdown) {
-      document.addEventListener('click', handleClickOutside)
-      return () => document.removeEventListener('click', handleClickOutside)
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        setMobileMenuOpen(false)
+        setActiveDropdown(null)
+      }
     }
-  }, [activeDropdown])
+    
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(prev => !prev)
+  }
 
   const toggleDropdown = (menu: string) => {
     setActiveDropdown(prev => prev === menu ? null : menu)
   }
 
+  const menus = [
+    { key: 'carrera', label: 'Carrera', items: [
+      { label: 'Nosotros', href: '/carrera/nosotros' },
+      { label: 'Autoridades', href: '/carrera/autoridades' }
+    ]},
+    { key: 'academico', label: 'Académico', items: [
+      { label: 'Cursos', href: '/academico/cursos' },
+      { label: 'Seminarios', href: '/academico/seminarios' },
+      { label: 'Convocatorias', href: '/academico/convocatorias' },
+      { label: 'Ofertas Académicas', href: '/academico/ofertas-academicas' },
+      { label: 'Gacetas', href: '/academico/gacetas' }
+    ]},
+    { key: 'comunicados', label: 'Comunicados', items: [
+      { label: 'Avisos', href: '/comunicados/avisos' },
+      { label: 'Comunicados', href: '/comunicados/comunicados' },
+      { label: 'Servicios', href: '/comunicados/servicios' }
+    ]},
+    { key: 'eventos', label: 'Eventos', items: [
+      { label: 'Eventos', href: '/eventos/eventos' },
+      { label: 'Talleres', href: '/eventos/talleres' }
+    ]}
+  ]
+
   return (
-    <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: colores.primario, color: '#fff' }}>
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-3">
+    <header className={styles.header}>
+      <nav className={styles.navContainer}>
+        
+        <Link href="/" className={styles.logoSection}>
+          <div className={styles.logoWrapper}>
+            <div className={styles.logoContainer}>
+              <img 
+                src={logoUrl || 'https://ui-avatars.com/api/?name=UPEA&background=DC0E10&color=fff&size=128'} 
+                alt="Logo" 
+              />
+            </div>
+          </div>
+          <span className={styles.institutionName}>{nombreInstitucion}</span>
+        </Link>
+
+        <div className={styles.desktopNav}>
+          <Link href="/" className={styles.navLink}>Inicio</Link>
           
-          <Link href="/" className="flex items-center space-x-3 group" onClick={(e) => e.stopPropagation()}>
-            <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/10 border border-white/20">
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
-            </div>
-            <span className="font-bold text-lg hidden sm:block">{nombreInstitucion}</span>
-          </Link>
-          <div className="hidden md:flex items-center space-x-1">
-            <Link href="/" className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition">Inicio</Link>
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => toggleDropdown('carrera')} className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 flex items-center gap-1 transition">
-                Carrera
-                <svg className={`w-4 h-4 transition-transform ${activeDropdown === 'carrera' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              {activeDropdown === 'carrera' && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                  <Link href="/carrera/nosotros" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Nosotros</Link>
-                  <Link href="/carrera/autoridades" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Autoridades</Link>
-                </div>
-              )}
-            </div>
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => toggleDropdown('academico')} className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 flex items-center gap-1 transition">
-                Académico
-                <svg className={`w-4 h-4 transition-transform ${activeDropdown === 'academico' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              {activeDropdown === 'academico' && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                  <Link href="/academico/cursos" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Cursos</Link>
-                  <Link href="/academico/seminarios" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Seminarios</Link>
-                  <Link href="/academico/convocatorias" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Convocatorias</Link>
-                  <Link href="/academico/ofertas-academicas" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Ofertas Académicas</Link>
-                  <Link href="/academico/gacetas" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Gacetas</Link>
-                </div>
-              )}
-            </div>
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => toggleDropdown('comunicados')} className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 flex items-center gap-1 transition">
-                Comunicados
-                <svg className={`w-4 h-4 transition-transform ${activeDropdown === 'comunicados' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              {activeDropdown === 'comunicados' && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                  <Link href="/comunicados/avisos" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Avisos</Link>
-                  <Link href="/comunicados/comunicados" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Comunicados</Link>
-                  <Link href="/comunicados/servicios" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>Servicios</Link>
-                </div>
-              )}
-            </div>
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => toggleDropdown('eventos')} className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 flex items-center gap-1 transition">
-                Eventos
-                <svg className={`w-4 h-4 transition-transform ${activeDropdown === 'eventos' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {menus.map((menu) => (
+            <div key={menu.key} className={styles.dropdownWrapper}>
+              <button 
+                onClick={() => toggleDropdown(menu.key)} 
+                className={`${styles.dropdownButton} ${activeDropdown === menu.key ? 'active' : ''}`}
+                type="button"
+              >
+                {menu.label}
+                <svg className={styles.dropdownArrow} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              {activeDropdown === 'eventos' && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                  <Link href="/eventos/eventos" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>📅 Eventos</Link>
-                  <Link href="/eventos/talleres" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-800 transition" onClick={() => setActiveDropdown(null)}>🎯 Talleres</Link>
+              
+              {activeDropdown === menu.key && (
+                <div className={styles.dropdownMenu}>
+                  {menu.items.map((item, idx) => (
+                    <Link key={idx} href={item.href} className={styles.dropdownItem}>
+                      {item.label}
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
-            <Link href="/enlaces" className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition">Enlaces</Link>
-            <Link href="/contacto" className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition">Contacto</Link>
-          </div>
+          ))}
+
+          <Link href="/enlaces" className={styles.navLink}>Enlaces</Link>
+          <Link href="/contacto" className={styles.navLink}>Contacto</Link>
+        </div>
+
+        <div className={styles.loginSection}>
           <a
             href="https://servicioadministrador.upea.bo"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm shadow-md transition hover:opacity-90 border border-white/30 hover:border-white/60"
-            style={{ backgroundColor: colores.secundario, color: '#000' }}
+            className={styles.loginBtn}
           >
             Iniciar Sesión
           </a>
-
-          {/* Mobile Button */}
-          <button className="md:hidden p-2 rounded-lg hover:bg-white/10" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
-          </button>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden pb-4 space-y-2 border-t border-white/10 pt-4">
-            <Link href="/" className="block px-4 py-2 hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Inicio</Link>
-            
-            <div className="px-4 py-1 text-xs font-bold text-white/60 uppercase">Carrera</div>
-            <Link href="/carrera/nosotros" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Nosotros</Link>
-            <Link href="/carrera/autoridades" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Autoridades</Link>
-            
-            <div className="px-4 py-1 text-xs font-bold text-white/60 uppercase mt-2">Académico</div>
-            <Link href="/academico/cursos" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Cursos</Link>
-            <Link href="/academico/seminarios" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Seminarios</Link>
-            <Link href="/academico/convocatorias" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Convocatorias</Link>
-            <Link href="/academico/ofertas-academicas" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Ofertas</Link>
-            <Link href="/academico/gacetas" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Gacetas</Link>
-
-            <div className="px-4 py-1 text-xs font-bold text-white/60 uppercase mt-2">Comunicados</div>
-            <Link href="/comunicados/avisos" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Avisos</Link>
-            <Link href="/comunicados/comunicados" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Comunicados</Link>
-            <Link href="/comunicados/servicios" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Servicios</Link>
-
-            <div className="px-4 py-1 text-xs font-bold text-white/60 uppercase mt-2">Eventos</div>
-            <Link href="/eventos/eventos" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Eventos</Link>
-            <Link href="/eventos/talleres" className="block ml-4 px-4 py-2 text-sm hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Talleres</Link>
-
-            {/* Enlaces y Contacto en móvil */}
-            <Link href="/enlaces" className="block px-4 py-2 hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Enlaces</Link>
-            <Link href="/contacto" className="block px-4 py-2 hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Contacto</Link>
-
-            <div className="border-t border-white/10 pt-2 mt-2">
-              <a
-                href="https://servicioadministrador.upea.bo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full text-center py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
-                style={{ backgroundColor: colores.secundario, color: '#000' }}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Iniciar Sesión
-              </a>
-            </div>
-          </div>
-        )}
+        <button 
+          type="button"
+          className={styles.mobileMenuBtn} 
+          onClick={toggleMobileMenu}
+          aria-label="Menú"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
+            />
+          </svg>
+        </button>
       </nav>
+
+      <div 
+        className={styles.mobileMenu}
+        style={{
+          display: mobileMenuOpen ? 'block' : 'none',
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.98)',
+          zIndex: 40,
+          padding: '1rem 0',
+          borderBottom: '2px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
+          maxHeight: '80vh',
+          overflowY: 'auto'
+        }}
+      >
+        <Link 
+          href="/" 
+          className={styles.mobileLink}
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            display: 'block',
+            padding: '1rem 1.5rem',
+            color: '#fff',
+            fontSize: '1rem',
+            fontWeight: 600,
+            borderBottom: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          Inicio
+        </Link>
+
+        {menus.map((menu) => (
+          <div key={menu.key} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <button
+              type="button"
+              onClick={() => toggleDropdown(menu.key)}
+              style={{
+                width: '100%',
+                padding: '1rem 1.5rem',
+                background: 'none',
+                border: 'none',
+                color: '#fff',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              {menu.label}
+              <svg 
+                className={`transition-transform ${activeDropdown === menu.key ? 'rotate-180' : ''}`}
+                width="16" 
+                height="16" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {activeDropdown === menu.key && (
+              <div style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                {menu.items.map((item, idx) => (
+                  <Link
+                    key={idx}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                      display: 'block',
+                      padding: '0.875rem 1.5rem 0.875rem 2.5rem',
+                      color: 'rgba(255,255,255,0.9)',
+                      fontSize: '0.9rem',
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'
+                      e.currentTarget.style.color = '#fff'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.9)'
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+
+        <Link 
+          href="/enlaces" 
+          className={styles.mobileLink}
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            display: 'block',
+            padding: '1rem 1.5rem',
+            color: '#fff',
+            fontSize: '1rem',
+            fontWeight: 600,
+            borderBottom: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          Enlaces
+        </Link>
+        
+        <Link 
+          href="/contacto" 
+          className={styles.mobileLink}
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            display: 'block',
+            padding: '1rem 1.5rem',
+            color: '#fff',
+            fontSize: '1rem',
+            fontWeight: 600,
+            borderBottom: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          Contacto
+        </Link>
+
+        <div style={{ padding: '1.5rem 1.5rem 0.5rem' }}>
+          <a
+            href="https://servicioadministrador.upea.bo"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'block',
+              padding: '1rem',
+              background: `linear-gradient(135deg, ${colores.secundario}, ${colores.secundario}cc)`,
+              color: '#000',
+              textAlign: 'center',
+              borderRadius: '0.75rem',
+              fontWeight: 700,
+              fontSize: '0.95rem',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+            }}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Iniciar Sesión
+          </a>
+        </div>
+      </div>
     </header>
   )
 }

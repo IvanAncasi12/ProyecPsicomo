@@ -189,15 +189,7 @@ export default function Footer() {
               <Link href="#" className="hover:text-accent transition">Privacidad</Link>
               <Link href="#" className="hover:text-accent transition">Términos</Link>
               <Link href="#" className="hover:text-accent transition">Cookies</Link>
-            </div>
-          </div>
-        </div>
-        <div className="mt-8 pt-6 border-t border-primary-foreground/10">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-primary-foreground/60">
-            <p className="text-center">
-              Plataforma desarrollada con tecnologías modernas para la educación superior.
-            </p>
-            <a
+              <a
               href="https://www.linkedin.com/in/ivan-ancasi-tumiri-a58764393?utm_source=share_via&utm_content=profile&utm_medium=member_android"
               target="_blank"
               rel="noopener noreferrer"
@@ -213,6 +205,7 @@ export default function Footer() {
               <span className="text-lg group-hover:translate-x-1 transition-transform">
               </span>
             </a>
+            </div>
           </div>
         </div>
       </div>

@@ -118,43 +118,43 @@ export default function About() {
              style={{ borderColor: `${colorPrimario}30` }}>
         
           <div className="text-center group p-6 rounded-xl bg-card hover:shadow-xl transition-all duration-300">
-            <div 
-              className="text-6xl font-black mb-3 transition-transform group-hover:scale-110"
-              style={{ 
-                background: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
+           <div
+                  className="text-6xl font-black mb-3 transition-transform group-hover:scale-110"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
               25+
             </div>
             <p className="text-muted-foreground font-semibold text-lg">Años de Trayectoria</p>
             <p className="text-sm text-muted-foreground mt-1">Formando profesionales desde 1998</p>
           </div>
           <div className="text-center group p-6 rounded-xl bg-card hover:shadow-xl transition-all duration-300">
-            <div 
-              className="text-6xl font-black mb-3 transition-transform group-hover:scale-110"
-              style={{ 
-                background: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
+              <div
+                className="text-6xl font-black mb-3 transition-transform group-hover:scale-110"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
               3,500+
             </div>
             <p className="text-muted-foreground font-semibold text-lg">Egresados Exitosos</p>
             <p className="text-sm text-muted-foreground mt-1">Líderes en el ámbito profesional</p>
           </div>
-          <div className="text-center group p-6 rounded-xl bg-card hover:shadow-xl transition-all duration-300">
-            <div 
+         <div className="text-center group p-6 rounded-xl bg-card hover:shadow-xl transition-all duration-300">
+            <div
               className="text-6xl font-black mb-3 transition-transform group-hover:scale-110"
-              style={{ 
-                background: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
+              style={{
+                backgroundImage: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                backgroundClip: 'text',
               }}
             >
               1,200+
