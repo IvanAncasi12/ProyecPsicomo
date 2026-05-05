@@ -118,9 +118,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
-
-/* css para el HERO */
-/* Animación de Gradiente Fluido (Colores dinámicos vía inline style) */
+ 
 @keyframes gradient-text {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -142,8 +140,7 @@
 .animate-slow-zoom { 
   animation: slowZoom 25s ease-in-out infinite alternate; 
 }
-
-/* Zoom para imagen lateral */
+ 
 @keyframes imageZoom {
   0% { transform: scale(1); }
   100% { transform: scale(1.05); }
@@ -151,8 +148,7 @@
 .animate-image-zoom { 
   animation: imageZoom 20s ease-in-out infinite alternate; 
 }
-
-/* Gradiente animado para texto */
+ 
 @keyframes gradient-text {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -166,8 +162,7 @@
   color: transparent;
   animation: gradient-text 6s ease infinite;
 }
-
-/* Animaciones de entrada */
+ 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }

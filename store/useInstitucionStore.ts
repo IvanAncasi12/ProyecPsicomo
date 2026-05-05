@@ -69,7 +69,7 @@ export const useInstitucionStore = create<InstitucionStore>((set, get) => ({
       );
       set({ recursos: response.data, loading: false });
     } catch (error: any) {
-      // Manejo de error específico - si no hay recursos, no es crítico
+      
       console.warn('No se pudieron cargar los recursos:', error.message);
       set({ 
         recursos: {
@@ -90,7 +90,7 @@ export const useInstitucionStore = create<InstitucionStore>((set, get) => ({
       );
       set({ eventos: response.data, loading: false });
     } catch (error: any) {
-      // Manejo de error - si no hay eventos, inicializamos con arrays vacíos
+       
       console.warn('No se pudieron cargar los eventos:', error.message);
       set({ 
         eventos: {
@@ -109,7 +109,7 @@ export const useInstitucionStore = create<InstitucionStore>((set, get) => ({
   fetchAllData: async () => {
     set({ loading: true, error: null });
     try {
-      // Ejecutamos todas las peticiones en paralelo
+       
       const [principal, contenido, recursos, eventos] = await Promise.all([
         apiClient.get<InstitucionPrincipal>(apiEndpoints.institucionPrincipal()).catch(() => null),
         apiClient.get<InstitucionContenido>(apiEndpoints.institucionContenido()).catch(() => null),

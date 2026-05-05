@@ -1,11 +1,12 @@
 // app/contacto/page.tsx
+
 import Contact from '@/components/home/Contact'
-import PortadaSeccion from '@/components/carrera/PortadaSeccion'
+import PageHero from '@/components/shared/PageHero'
 
 export default function ContactoPage() {
   return (
     <>
-      <PortadaSeccion titulo="Contacto" subtitulo="Estamos aquí para ayudarte" />
+      <PageHero titulo="Contacto" />
       <Contact />
     </>
   )

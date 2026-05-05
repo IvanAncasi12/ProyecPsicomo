@@ -1,6 +1,5 @@
-// Tipos para la respuesta de institucionesPrincipal
-export interface InstitucionPrincipal {
-  Descripcion: {
+export interface InstitucionPrincipal { 
+  Descripcion: { 
     institucion_id: number;
     institucion_nombre: string;
     institucion_iniciales: string;
@@ -31,8 +30,7 @@ export interface InstitucionPrincipal {
     }>;
   };
 }
-
-// Tipos para contenido (autoridades, portada, etc.)
+ 
 export interface Autoridad {
   id_autoridad: number;
   foto_autoridad: string;
@@ -75,8 +73,7 @@ export interface InstitucionContenido {
   ubicacion: Ubicacion[];
   upea_videos: Video[];
 }
-
-// Tipos para recursos
+ 
 export interface Publicacion {
   publicaciones_id: number;
   publicaciones_titulo: string;
@@ -102,8 +99,7 @@ export interface InstitucionRecursos {
   linksExternoInterno: LinkExterno[];
   links: any[];
 }
-
-// Tipos para eventos y convocatorias
+ 
 export interface Gaceta {
   gaceta_id: number;
   gaceta_titulo: string;
@@ -125,7 +121,7 @@ export interface Evento {
 }
 
 export interface Facilitador {
-  // Agrega los campos según la estructura real
+  
 }
 
 export interface Curso {
@@ -202,8 +198,7 @@ export interface InstitucionEventos {
   serviciosCarrera: Servicio[];
   ofertasAcademicas: OfertaAcademica[];
 }
-
-// Tipo unificado para el estado global
+  
 export interface InstitucionData {
   principal: InstitucionPrincipal | null;
   contenido: InstitucionContenido | null;

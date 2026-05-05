@@ -2,94 +2,321 @@
 
 import { useEffect, useState } from 'react'
 import { apiClient } from '@/lib/axios'
-import PortadaSeccion from '@/components/carrera/PortadaSeccion'
+import PageHero from '@/components/shared/PageHero'
 import ZoomableImage from '@/components/ui/ZoomableImage'
 
 export default function AvisosPage() {
   const [avisos, setAvisos] = useState<any[]>([])
+  const [institucionData, setInstitucionData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL || 'https://apiadministrador.upea.bo'
+
+  function buildImageUrl(image?: string | null) {
+    if (!image) return ''
+
+    const imageClean = String(image).trim()
+
+    if (!imageClean) return ''
+
+    if (imageClean.startsWith('http')) {
+      return imageClean
+    }
+
+    const cleanBase = baseUrl.replace(/\/$/, '')
+
+    if (
+      imageClean.includes('/') ||
+      imageClean.startsWith('InstitucionUpea') ||
+      imageClean.startsWith('/InstitucionUpea')
+    ) {
+      const path = imageClean.startsWith('/') ? imageClean : `/${imageClean}`
+      return `${cleanBase}${path}`
+    }
+
+    return `${cleanBase}/InstitucionUpea/Convocatorias/${imageClean}`
+  }
+
+  function cleanHtml(text?: string | null) {
+    if (!text) return ''
+
+    return String(text)
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+
+  function cleanValue(value?: string | null) {
+    if (!value) return ''
+
+    const clean = String(value).trim()
+
+    return clean === '_' ? '' : clean
+  }
+
+  function formatDate(date?: string | null) {
+    if (!date) return 'No especificado'
+
+    const parsedDate = new Date(date)
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return 'No especificado'
+    }
+
+    return parsedDate.toLocaleDateString('es-BO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
+  function esAviso(item: any) {
+    const tipoId = Number(item?.tipo_conv_comun?.idtipo_conv_comun)
+    const tipoNombre = String(item?.tipo_conv_comun?.tipo_conv_comun_titulo || '')
+      .trim()
+      .toUpperCase()
+
+    return tipoId === 2 || tipoNombre === 'AVISOS'
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const id = process.env.NEXT_PUBLIC_INSTITUCION_ID || '22'
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://apiadministrador.upea.bo'
-        
+        const id = process.env.NEXT_PUBLIC_INSTITUCION_ID || '11'
+
+        const principalRes = await apiClient.get(`/institucionesPrincipal/${id}`)
+        setInstitucionData(principalRes.data?.Descripcion)
+
         const res = await apiClient.get(`/institucion/${id}/gacetaEventos`)
         const convs = res.data?.convocatorias || []
-        
-        const avisosFiltrados = convs.filter((c: any) => 
-          c.tipo_conv_comun?.tipo_conv_comun_titulo?.toUpperCase() === 'AVISOS'
-        )
-        
-        const formatted = avisosFiltrados.map((c: any) => {
-          let img_url = '/placeholder.jpg'
-          
-          if (c.con_foto_portada) {
-            img_url = c.con_foto_portada.startsWith('http') 
-              ? c.con_foto_portada 
-              : `${baseUrl}${c.con_foto_portada}`
-          }
-          
-          return {
-            ...c,
-            img_url
-          }
-        })
-        
+
+        const soloAvisos = convs.filter((aviso: any) => esAviso(aviso))
+
+        const formatted = soloAvisos.map((aviso: any) => ({
+          ...aviso,
+          img_url: buildImageUrl(aviso.con_foto_portada),
+        }))
+
         setAvisos(formatted)
-      } catch (e) { 
-        console.error('Error cargando avisos:', e)
+      } catch (error) {
+        console.error('Error cargando avisos:', error)
       } finally {
         setLoading(false)
       }
     }
+
     fetchData()
   }, [])
 
+  const colores = institucionData?.colorinstitucion?.[0]
+  const colorPrimario = colores?.color_primario || '#7A0C14'
+  const colorSecundario = colores?.color_secundario || '#D4AF37'
+
   return (
-    <>
-      <PortadaSeccion titulo="Avisos" subtitulo="Notificaciones importantes" />
-      
-      <div className="py-16 bg-gray-50 min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 space-y-6">
+    <main className="bg-white">
+      <PageHero titulo="Avisos" />
+
+      <section className="relative overflow-hidden py-16 md:py-20 bg-white">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(circle at 12% 16%, ${colorSecundario}10, transparent 28%),
+              radial-gradient(circle at 90% 82%, ${colorPrimario}08, transparent 30%),
+              linear-gradient(180deg, #ffffff 0%, #f8fafc 55%, #ffffff 100%)
+            `,
+          }}
+        />
+
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span
+              className="inline-flex items-center gap-3 px-5 py-2 rounded-full border bg-white text-xs md:text-sm font-black tracking-[0.18em] uppercase shadow-sm"
+              style={{
+                borderColor: `${colorSecundario}55`,
+                color: colorPrimario,
+              }}
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: colorSecundario }}
+              />
+              Notificaciones institucionales
+            </span>
+
+            <p className="text-base md:text-lg text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed mt-5">
+              Avisos importantes para estudiantes, docentes y comunidad
+              universitaria.
+            </p>
+          </div>
+
           {loading ? (
-            <p className="text-center py-20 text-gray-500 animate-pulse">Cargando avisos...</p>
-          ) : avisos.length === 0 ? (
-            <p className="text-center py-20 text-gray-500">No hay avisos disponibles.</p>
-          ) : (
-            avisos.map((aviso: any) => (
-              <div key={aviso.idconvocatorias} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-yellow-500">
-                <div className="flex gap-4">
-                  <div className="w-24 h-24 flex-shrink-0 bg-yellow-100 rounded-lg overflow-hidden">
-                    {aviso.img_url && aviso.img_url !== '/placeholder.jpg' ? (
-                      <ZoomableImage 
-                        src={aviso.img_url} 
-                        alt={aviso.con_titulo}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold mb-2">
-                      AVISO
-                    </span>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{aviso.con_titulo}</h3>
-                    <p className="text-gray-600 mb-3" dangerouslySetInnerHTML={{ __html: aviso.con_descripcion || '' }} />
-                    <div className="text-sm text-gray-500">
-                      {aviso.con_fecha_inicio && <p>📅 Inicio: {new Date(aviso.con_fecha_inicio).toLocaleDateString()}</p>}
-                      {aviso.con_fecha_fin && <p>📅 Fin: {new Date(aviso.con_fecha_fin).toLocaleDateString()}</p>}
+            <div className="space-y-6">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] animate-pulse"
+                >
+                  <div className="flex flex-col md:flex-row gap-5">
+                    <div className="w-full md:w-52 h-44 rounded-2xl bg-slate-200 shrink-0" />
+
+                    <div className="flex-1">
+                      <div className="h-5 w-28 bg-slate-100 rounded-full mb-4" />
+                      <div className="h-7 w-3/4 bg-slate-200 rounded mb-4" />
+                      <div className="h-4 w-full bg-slate-100 rounded mb-2" />
+                      <div className="h-4 w-2/3 bg-slate-100 rounded" />
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
+          ) : avisos.length === 0 ? (
+            <div className="text-center py-16 rounded-3xl border border-dashed border-slate-300 bg-white shadow-sm">
+              <div className="text-5xl mb-4">🔔</div>
+
+              <h3 className="text-2xl font-black text-slate-950 mb-2">
+                No hay avisos disponibles
+              </h3>
+
+              <p className="text-slate-600 font-medium">
+                Cuando se registren avisos en el servicio, aparecerán aquí
+                automáticamente.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {avisos.map((aviso, index) => {
+                const titulo =
+                  cleanValue(aviso.con_titulo) || `Aviso ${index + 1}`
+
+                const descripcion =
+                  cleanHtml(aviso.con_descripcion) ||
+                  'Sin descripción disponible.'
+
+                const tipo =
+                  cleanValue(aviso.tipo_conv_comun?.tipo_conv_comun_titulo) ||
+                  'AVISOS'
+
+                return (
+                  <article
+                    key={aviso.idconvocatorias || index}
+                    className="group relative overflow-hidden rounded-[1.75rem] border bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_65px_rgba(15,23,42,0.13)]"
+                    style={{
+                      borderColor: `${colorSecundario}35`,
+                    }}
+                  >
+                    <div
+                      className="absolute left-0 top-0 h-full w-1"
+                      style={{
+                        background: `linear-gradient(180deg, ${colorSecundario}, ${colorPrimario})`,
+                      }}
+                    />
+
+                    <div
+                      className="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-0 group-hover:opacity-35 transition-opacity duration-500 pointer-events-none"
+                      style={{
+                        background: `radial-gradient(circle, ${colorSecundario}80, transparent 70%)`,
+                      }}
+                    />
+
+                    <div className="relative flex flex-col md:flex-row gap-5">
+                      <div className="w-full md:w-52 h-56 md:h-44 shrink-0 overflow-hidden rounded-[1.35rem] bg-slate-100">
+                        {aviso.img_url ? (
+                          <ZoomableImage
+                            src={aviso.img_url}
+                            alt={titulo}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center text-white text-4xl font-black"
+                            style={{
+                              background: `linear-gradient(135deg, ${colorSecundario}, ${colorPrimario})`,
+                            }}
+                          >
+                            🔔
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-3 mb-3">
+                          <span
+                            className="inline-flex px-4 py-1.5 rounded-full bg-white border text-xs font-black uppercase tracking-[0.14em] shadow-sm"
+                            style={{
+                              color: colorPrimario,
+                              borderColor: `${colorSecundario}55`,
+                            }}
+                          >
+                            {tipo}
+                          </span>
+
+                          <span className="inline-flex px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-black uppercase tracking-[0.12em]">
+                            Importante
+                          </span>
+                        </div>
+
+                        <h3 className="text-2xl md:text-3xl font-black text-slate-950 leading-tight mb-3">
+                          {titulo}
+                        </h3>
+
+                        <div
+                          className="w-16 h-1 rounded-full mb-4"
+                          style={{
+                            background: `linear-gradient(90deg, ${colorPrimario}, ${colorSecundario})`,
+                          }}
+                        />
+
+                        <p className="text-slate-600 text-sm md:text-base leading-relaxed font-medium mb-5 line-clamp-3">
+                          {descripcion}
+                        </p>
+
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          <InfoBox
+                            icon="📅"
+                            label="Inicio"
+                            value={formatDate(aviso.con_fecha_inicio)}
+                          />
+
+                          <InfoBox
+                            icon="🏁"
+                            label="Finalización"
+                            value={formatDate(aviso.con_fecha_fin)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
           )}
         </div>
+      </section>
+    </main>
+  )
+}
+
+function InfoBox({
+  icon,
+  label,
+  value,
+}: {
+  icon: string
+  label: string
+  value: string
+}) {
+  return (
+    <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+      <div className="flex items-start gap-3 text-sm">
+        <span className="text-lg leading-none">{icon}</span>
+
+        <div>
+          <span className="block text-slate-950 font-black">{label}</span>
+          <span className="text-slate-600 font-medium">{value}</span>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
