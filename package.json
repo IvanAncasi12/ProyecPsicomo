@@ -73,7 +73,10 @@
   "optionalDependencies": {
     "@next/swc-win32-x64-msvc": "^16.2.4"
   },
-  "overrides": {
-    "postcss": "8.5.10"
+    "pnpm": {
+    "overrides": {
+      "postcss": "8.5.10",
+      "lodash": "4.18.0"
+    }
   }
 }
