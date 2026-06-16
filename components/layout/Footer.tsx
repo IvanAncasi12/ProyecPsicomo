@@ -360,41 +360,25 @@ export default function Footer() {
               derechos reservados.
             </p>
 
-            <div className="flex flex-wrap justify-center items-center gap-3">
-              <Link href="#" className="hover:text-white transition font-semibold">
-                Privacidad
-              </Link>
-
-              <span className="text-white/25">•</span>
-
-              <Link href="#" className="hover:text-white transition font-semibold">
-                Términos
-              </Link>
-
-              <span className="text-white/25">•</span>
-
-              <Link href="#" className="hover:text-white transition font-semibold">
-                Cookies
-              </Link>
-
+            <div className="flex items-center gap-3">
               <a
-                href="https://www.linkedin.com/in/ivan-ancasi-tumiri-a58764393?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+                href="https://utic.upea.bo/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group ml-0 lg:ml-2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white transition-all duration-300 border border-white/10"
-                title="Perfil de LinkedIn del desarrollador"
+                className="group"
               >
-                <span
-                  className="font-black transition-colors"
-                  style={{ color: colorSecundario }}
-                >
-                  I.A.T.
-                </span>
-                <span className="text-white/72 group-hover:text-slate-950 transition-colors font-semibold">
-                  Desarrollador
-                </span>
+                <img
+                  src="/LOGOUTIC.png"
+                  alt="U-TIC"
+                  className="w-10 h-10 rounded-full object-cover border border-slate-700 hover:scale-110 transition-transform duration-300"
+                />
               </a>
+
+              <p className="flex items-center gap-1 text-slate-500">
+                IAT U - TIC
+              </p>
             </div>
+
           </div>
         </div>
       </div>
