@@ -9,8 +9,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'PSICOMOTRICIDAD Y DEPORTES - UPEA',
-  description: 'PSICOMOTRICIDAD Y DEPORTES - Universidad Pública de El Alto',
+  title: ' DERECHO - UPEA',
+  description: ' DERECHO - Universidad Pública de El Alto',
   generator: 'v0.app',
   icons: {
     icon: [
